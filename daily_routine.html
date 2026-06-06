@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>毎日の日課</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F2ED;
+    --surface: #FFFFFF;
+    --text: #1A1A18;
+    --muted: #7A7872;
+    --border: #E2DED7;
+    --health: #1D9E75;
+    --health-bg: #E1F5EE;
+    --career: #185FA5;
+    --career-bg: #E6F1FB;
+    --mind: #534AB7;
+    --mind-bg: #EEEDFE;
+    --study: #854F0B;
+    --study-bg: #FAEEDA;
+    --accent: #1D9E75;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .date-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .section {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    font-size: 16px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .section-time {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .task {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .task:hover { border-color: #C5C0B8; }
+  .task:active { transform: scale(0.99); }
+
+  .task.done {
+    opacity: 0.5;
+  }
+
+  .task.done .task-name {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    background: transparent;
+  }
+
+  .task.done .checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checkmark {
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+  }
+
+  .task.done .checkmark {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .task-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .task-name {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 99px;
+    letter-spacing: 0.03em;
+  }
+
+  .badge-health { background: var(--health-bg); color: var(--health); }
+  .badge-career { background: var(--career-bg); color: var(--career); }
+  .badge-mind   { background: var(--mind-bg);   color: var(--mind);   }
+  .badge-study  { background: var(--study-bg);  color: var(--study);  }
+
+  .task-dur {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .footer {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tip {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 380px;
+  }
+
+  .reset-btn {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .reset-btn:hover {
+    color: var(--text);
+    border-color: #C5C0B8;
+    background: var(--surface);
+  }
+
+  .congrats {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    margin-top: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+    animation: popIn 0.4s ease;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="date-label" id="date-label">Loading...</div>
+    <h1>今日の日課</h1>
+    <div class="progress-row">
+      <div class="progress-track">
+        <div class="progress-fill" id="prog"></div>
+      </div>
+      <div class="progress-label" id="prog-label">0 / 7</div>
+    </div>
+  </div>
+
+  <!-- 朝 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">🌅</span>
+      <span class="section-title">朝のルーティン</span>
+      <span class="section-time">〜15分</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">5分間のストレッチ・深呼吸</div>
+        <div class="task-meta"><span class="badge badge-health">健康</span><span class="task-dur">5分</span></div>
+      </div>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">感謝リストを3つ書く（日記1ページ）</div>
+        <div class="task-meta"><span class="badge badge-mind">メンタル</span><span class="task-dur">5分</span></div>
+      </div>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">今日の最優先タスクを1つ決める</div>
+        <div class="task-meta"><span class="badge badge-career">キャリア</span><span class="task-dur">2分</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 日中 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">☀️</span>
+      <span class="section-title">日中（隙間時間）</span>
+      <span class="section-time">〜25分</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">Podcastや解説動画を聴く・観る</div>
+        <div class="task-meta"><span class="badge badge-study">学習</span><span class="task-dur">15分</span></div>
+      </div>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">10分ウォーキングまたは軽い運動</div>
+        <div class="task-meta"><span class="badge badge-health">健康</span><span class="task-dur">10分</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 夜 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">🌙</span>
+      <span class="section-title">夜のルーティン</span>
+      <span class="section-time">〜10分</span>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">明日やることを3つメモする</div>
+        <div class="task-meta"><span class="badge badge-career">キャリア</span><span class="task-dur">5分</span></div>
+      </div>
+    </div>
+    <div class="task" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="task-body">
+        <div class="task-name">5分間の瞑想またはボディスキャン</div>
+        <div class="task-meta"><span class="badge badge-mind">メンタル</span><span class="task-dur">5分</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="congrats" id="congrats">🎉 全タスク完了！お疲れ様でした！</div>
+
+  <div class="footer">
+    <div class="tip">合計 約25〜30分。朝・日中・夜に分けているので<br>まとまった時間がなくても続けやすい設計です。</div>
+    <button class="reset-btn" onclick="resetAll()">↺ リセット</button>
+  </div>
+
+</div>
+<script>
+  const TOTAL = 7;
+  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const days = ['日','月','火','水','木','金','土'];
+  const now = new Date();
+  document.getElementById('date-label').textContent =
+    now.getFullYear() + '年 ' + months[now.getMonth()] + now.getDate() + '日（' + days[now.getDay()] + '）';
+
+  function toggle(el) {
+    el.classList.toggle('done');
+    update();
+  }
+
+  function update() {
+    const done = document.querySelectorAll('.task.done').length;
+    document.getElementById('prog').style.width = Math.round(done / TOTAL * 100) + '%';
+    document.getElementById('prog-label').textContent = done + ' / ' + TOTAL;
+    document.getElementById('congrats').style.display = done === TOTAL ? 'block' : 'none';
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.task.done').forEach(t => t.classList.remove('done'));
+    update();
+  }
+</script>
+</body>
+</html>
