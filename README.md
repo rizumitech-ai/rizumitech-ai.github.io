@@ -1,1 +1,0 @@
-# rizumitech-ai.github.io
